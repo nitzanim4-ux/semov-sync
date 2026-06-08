@@ -1,0 +1,34 @@
+name: Semov Weekly Sync
+
+on:
+  schedule:
+    # כל יום ראשון בשעה 07:00 (UTC) = 10:00 ישראל (שעון קיץ)
+    - cron: "0 7 * * 0"
+  workflow_dispatch:  # הפעלה ידנית מה-Actions tab
+
+jobs:
+  compare-and-notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Semov sync
+        env:
+          SEMOV_API_KEY:     ${{ secrets.SEMOV_API_KEY }}
+          FIXED_LIST_ID:     ${{ secrets.FIXED_LIST_ID }}
+          VARIABLE_LIST_ID:  ${{ secrets.VARIABLE_LIST_ID }}
+          EMAIL_SENDER:      ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENT:   ${{ secrets.EMAIL_RECIPIENT }}
+        run: python semov_sync.py
+
